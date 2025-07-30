@@ -444,7 +444,7 @@ mla_design_parameters = np.zeros((9, 5)) #initialize MLA design parameters array
 
 mla_design_parameters[0] = [125e-3, 50e-3, 1.5e-3,3,True] # Array No. 1 : f_fourier - 125mm, f_mla - 50mm, pitch_mla - 1.4mm (3HEX)
 mla_design_parameters[1] = [125e-3, 50e-3, 1.6e-3,3,True] # Array No. 2 : f_fourier - 125mm, f_mla - 50mm, pitch_mla - 1.5mm (3HEX)
-mla_design_parameters[2] = [125e-3, 25e-3, 1.55e-3,3,True] # Array No. 3 : f_fourier - 125mm, f_mla - 50mm, pitch_mla - 1.55mm (3HEX)
+mla_design_parameters[2] = [125e-3, 25e-3, 1.55e-3,3,True] # Array No. 3 : f_fourier - 125mm, f_mla - 25mm, pitch_mla - 1.55mm (3HEX)
 
 
 mla_design_parameters[3] = [125e-3, 50e-3, 1.2e-3,7,True] # Array No. 4 : f_fourier - 125mm, f_mla - 50mm, pitch_mla - 1.2mm (7HEX)
@@ -454,12 +454,13 @@ mla_design_parameters[5] = [125e-3, 25e-3, 1.15e-3,7,True] # Array No. 6 :  f_fo
 
 mla_design_parameters[6] = [125e-3, 30e-3, 1.55e-3,3,True] # Array No. 7 : f_fourier - 125mm, f_mla - 30mm, pitch_mla - 1.55mm (3HEX)
 mla_design_parameters[7] = [125e-3, 30e-3, 1.15e-3,7,True] # Array No. 8 :  f_fourier - 125mm, f_mla - 30mm, pitch_mla - 1.15mm (7HEX)
-mla_design_parameters[8] = [125e-3, 25e-3, 1.15e-3,7,True] # Array No. 9 :  f_fourier - 125mm, f_mla - 25mm, pitch_mla - 1.15mm (7HEX)
+mla_design_parameters[8] = [125e-3, 40e-3, 1.15e-3,7,True] # Array No. 9 :  f_fourier - 125mm, f_mla - 25mm, pitch_mla - 1.15mm (7HEX)
 
 #other global parameters
-is_plot_design = True # plot MLA design after generation. 
+is_plot_design = True # plot MLA design after generation.
 
-root_path = "D:/MLA_Powerphotonic_Files" # root path to save the MLA designs.
+
+root_path = "D:/MLA_Powerphotonic_Files/20250728_final_design_altermarker/" # root path to save the MLA designs.
 
 
 
@@ -503,94 +504,35 @@ for i in range(3):
         # Fill the full MLA frame with the current design
         full_mla_frame[y_offset:y_end, x_offset:x_end] = current_design_frame
         
-        # Add number marker to the top left corner of each design
-        design_number = i * 3 + j + 1  # Design numbers 1-9
-        
-        # Create a marker region with dots representing the design number
-        marker_height = int(0.2e-3 / sample_grid_size)  # 0.2mm height for marker
-        marker_width = int(0.3e-3 / sample_grid_size)   # 0.3mm width for marker
-        
-        # Ensure marker doesn't exceed design boundaries
-        marker_height = min(marker_height, current_design_frame.shape[0] // 4)
-        marker_width = min(marker_width, current_design_frame.shape[1] // 4)
-        
-        # Calculate marker position (top left of current design)
-        marker_y_start = y_offset
-        marker_y_end = y_offset + marker_height
-        marker_x_start = x_offset
-        marker_x_end = x_offset + marker_width
-        
-        # Set marker value to maximum sag value + 10% for visibility, but limit to 65μm
-        max_sag = np.max(current_design_frame)
-        marker_value = max_sag * 1.1 if max_sag > 0 else 10.0  # 10μm if no sag
-        marker_value = min(marker_value, 65.0)  # Limit marker height to 65μm maximum
-        
-        # Create dots pattern for each design number
-        dot_size = max(2, int(0.02e-3 / sample_grid_size))  # Minimum 2 pixels, or 0.02mm
-        dot_spacing = max(5, int(0.05e-3 / sample_grid_size))  # Minimum 5 pixels, or 0.05mm
-        
-        # Calculate arrangement for dots based on design number
-        if design_number <= 3:
-            # Arrange dots horizontally for numbers 1-3
-            for dot in range(design_number):
-                dot_x_start = marker_x_start + dot * dot_spacing
-                dot_x_end = min(dot_x_start + dot_size, marker_x_end)
-                dot_y_start = marker_y_start + marker_height // 2 - dot_size // 2
-                dot_y_end = min(dot_y_start + dot_size, marker_y_end)
-                
-                if dot_x_end <= marker_x_end and dot_y_end <= marker_y_end:
-                    full_mla_frame[dot_y_start:dot_y_end, dot_x_start:dot_x_end] = marker_value
-        
-        elif design_number <= 6:
-            # Arrange dots in 2 rows for numbers 4-6
-            dots_per_row = 2 if design_number == 4 else 3 if design_number == 6 else 2
-            row1_dots = (design_number + 1) // 2
-            row2_dots = design_number - row1_dots
-            
-            # First row
-            for dot in range(row1_dots):
-                dot_x_start = marker_x_start + dot * dot_spacing
-                dot_x_end = min(dot_x_start + dot_size, marker_x_end)
-                dot_y_start = marker_y_start + marker_height // 4
-                dot_y_end = min(dot_y_start + dot_size, marker_y_end)
-                
-                if dot_x_end <= marker_x_end and dot_y_end <= marker_y_end:
-                    full_mla_frame[dot_y_start:dot_y_end, dot_x_start:dot_x_end] = marker_value
-            
-            # Second row
-            for dot in range(row2_dots):
-                dot_x_start = marker_x_start + dot * dot_spacing
-                dot_x_end = min(dot_x_start + dot_size, marker_x_end)
-                dot_y_start = marker_y_start + 3 * marker_height // 4 - dot_size
-                dot_y_end = min(dot_y_start + dot_size, marker_y_end)
-                
-                if dot_x_end <= marker_x_end and dot_y_end <= marker_y_end:
-                    full_mla_frame[dot_y_start:dot_y_end, dot_x_start:dot_x_end] = marker_value
-        
-        else:  # design_number 7-9
-            # Arrange dots in 3 rows
-            dots_per_row = 3
-            rows = 3
-            
-            for row in range(rows):
-                for dot in range(dots_per_row):
-                    if row * dots_per_row + dot + 1 > design_number:
-                        break
-                    
-                    dot_x_start = marker_x_start + dot * dot_spacing
-                    dot_x_end = min(dot_x_start + dot_size, marker_x_end)
-                    dot_y_start = marker_y_start + row * (marker_height // 3) + (marker_height // 6)
-                    dot_y_end = min(dot_y_start + dot_size, marker_y_end)
-                    
-                    if dot_x_end <= marker_x_end and dot_y_end <= marker_y_end:
-                        full_mla_frame[dot_y_start:dot_y_end, dot_x_start:dot_x_end] = marker_value
-        
-        print(f"Added {design_number} dots marker at position ({i},{j}) with value {marker_value:.2f}μm (limited to 65μm)")
+        # Design numbers 1-9 (for reference only, no markers added)
+        design_number = i * 3 + j + 1
+        print(f"Added design {design_number} at position ({i},{j})")
+
+# Add a 50x50 pixel marker at the top left corner with gradient (20μm max height at center)
+marker_size = 50  # 50x50 pixel marker
+marker_max_height = 20.0  # 20μm maximum height at center
+top_left_x = 50
+top_left_y = 50  # Top left in the array (remember origin is at bottom left in plot)
+
+# Create a gradient marker with maximum height at center and zero at edges
+y, x = np.ogrid[:marker_size, :marker_size]
+center_y, center_x = marker_size // 2, marker_size // 2
+# Calculate distance from center (normalized to range 0-1)
+distance = np.sqrt((x - center_x)**2 + (y - center_y)**2) / (marker_size / 2)
+# Clip distance to 1.0 to ensure edges are zero
+distance = np.clip(distance, 0, 1.0)
+# Create gradient height (1 - distance gives highest value at center, lowest at edge)
+marker_gradient = marker_max_height * (1 - distance)
+
+# Add the gradient marker to the full MLA frame
+full_mla_frame[top_left_y:top_left_y+marker_size, top_left_x:top_left_x+marker_size] = marker_gradient
+
+print(f"Added 50x50 pixel marker with 20μm height gradient (max at center) at top left corner")
 
 # Visual check of the full MLA frame with markers 
 if is_plot_design:
     plt.figure(figsize=(12, 12))
-    plt.matshow(full_mla_frame, cmap='YlOrRd', origin='lower', aspect='equal', interpolation='none')
+    plt.matshow(full_mla_frame, cmap='YlOrRd', aspect='equal', interpolation='none')
     plt.title('Full MLA Design (15mm x 15mm) with Design Numbers')
     plt.colorbar(label='Sag (um)')
     
@@ -653,13 +595,13 @@ full_mla_frame_powerphotonics[1:,0] = np.arange(10, (full_frame_height+1) * samp
 full_mla_frame_powerphotonics[1:, 1:] = full_mla_frame
 
 #Vsual check of the full MLA frame. 
-fig,ax = plt.subplots(figsize=(10,10))
-fig_full_frame = ax.imshow(full_mla_frame_powerphotonics[1:, 1:], cmap='YlOrRd', origin='lower', aspect='equal', interpolation='none')
+#fig,ax = plt.subplots(figsize=(10,10))
+#fig_full_frame = ax.imshow(full_mla_frame_powerphotonics[1:, 1:], cmap='YlOrRd', origin='lower', aspect='equal', interpolation='none')
 #plot X and Y axes 
-ax.set_title('Full MLA Design for Powerphotonic Manufacturing. (AXIS not plotted)')
-ax.set_xlabel('X pixels (um)')   
-ax.set_ylabel('Y pixels (um)')
-fig.colorbar(fig_full_frame, ax=ax, label='Sag (um)')  # Add colorbar for sag values
+#ax.set_title('Full MLA Design for Powerphotonic Manufacturing. (AXIS not plotted)')
+#ax.set_xlabel('X pixels (um)')   
+#ax.set_ylabel('Y pixels (um)')
+#fig.colorbar(fig_full_frame, ax=ax, label='Sag (um)')  # Add colorbar for sag values
 
 
 plt.show()
